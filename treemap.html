@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+  <html>
+  <head>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+  </head>
+
+  <body>
+
+    <script>
+
+      var litecoin = 75;
+      var doge = 22;
+      var monero = 33;
+      var btc = 140;
+      var eth = 120;
+      var dash = 44;
+
+      var data = {
+          "name": "All cryptocurrencies",
+          "value": 434,
+          "children": [
+            {
+              "name": "LITECOIN",
+              "value": litecoin
+            },
+            {
+              "name": "DOGE",
+              "value": doge
+            },
+            {
+              "name": "MONERO",
+              "value": monero
+            },
+            {
+              "name": "BTC",
+              "value": btc
+            },
+            {
+              "name": "ETH",
+              "value": eth
+            },
+            {
+              "name": "DASH",
+              "value": dash
+            }
+          ]
+        };
+
+        // array of colors
+        var color = d3.scale.category10();
+
+        //d3.json('file.json', data => {});
+        function main (data) {
+        // creating the canvas object, used by d3 to display stuff
+        var canvas = d3.select("body").append("svg")
+          .attr("width", 1280)
+          .attr("height", 700);
+
+        // treemap function: gathers data, computes coordinates, and finally it plots them (append("rect"))
+        // d3.json("flare.json", function (data) {
+        // var main = function (data) {
+        var treemap = d3.layout.treemap()
+            .size([1280, 700]) // same size as canvas
+            .nodes(data);
+
+          //console.log(treemap);
+          // create a new "cell" class for our canvas
+          var cells = canvas.selectAll(".cell")
+            .data(treemap)
+            .enter()
+            .append("g")
+            .attr("class", "cell");
+
+          // specifying properties for the class "cell"
+          // we also bind said properties to the coordinates produced by the treemap funct (line 15)
+          cells.append("rect")
+            .attr("x", d => {return d.x})
+            .attr("y", d => {return d.y})
+            .attr("width", d => {return d.dx})
+            .attr("height", d => {return d.dy})
+            .attr("fill", d => {return d.children ? null : color(d.name)})
+            .attr("stroke", "white");
+
+          cells.append("text")
+            .attr("x", d => {return d.x + d.dx / 2})
+            .attr("y", d => {return d.y + d.dy / 2})
+            .text(d => {
+              if (d.parent) {
+            //    return "this is " + d.name + " and parent is " + d.parent.name;
+                  return d.name;
+              } else return null;})
+            .style('fill', 'White')
+            .attr("text-anchor", "middle");
+          };
+
+        main(data);
+
+    </script>
+
+  </body>
+</html>
