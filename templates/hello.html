@@ -1,0 +1,104 @@
+<html>
+  <head>
+    <title> Welcome to CryptoBattles! </title>
+    <script src="../static/js/d3.v3.min.js"></script>
+    <script src="../static/js/jquery-3.2.1.min.js" type="text/javascript"></script>
+    </head>
+
+<body>
+<h2>Welcome to CryptoBattles!</h2>
+
+    <script type=text/javascript>
+
+    var canvas = d3.select("body")
+       .append("svg")
+       .attr("width", 1280)
+       .attr("height", 700);
+
+    function drawTreeMap(mydata, canvas) {
+      // draw treemap
+      var treemap = d3.layout.treemap()
+          .size([1280, 700]) // same size as canvas
+          .nodes(mydata);
+
+      // create array of colors
+      var color = d3.scale.category10();
+
+      // create a new "cell" class for our canvas
+      let cells = canvas.selectAll(".cell")
+         .data(treemap)
+         .enter()
+         .append("g")
+         .attr("class", "cell");
+
+     // fill cells with data
+       cells.append("rect")
+         .attr("x", d => {
+           //console.log(d.x);
+           return d.x;
+         })
+         .attr("y", d => {
+           //console.log(d.y);
+           return d.y;
+         })
+         .attr("width", d => {
+           //console.log(d.dx);
+           return d.dx;
+         })
+         .attr("height", d => {
+           //console.log(d.dy);
+           return d.dy;
+         })
+         .attr("fill", d => {return d.children ? null : color(d.name)})
+         .attr("stroke", "white");
+
+     // add text
+     cells.append("text")
+       .attr("x", d => {return d.x + d.dx / 2})
+       .attr("y", d => {return d.y + d.dy / 2})
+       .text(d => {
+         if (d.parent) {
+             return d.name;
+         } else return null;})
+       .style('fill', 'White')
+       .attr("text-anchor", "middle");
+    }
+
+    function main(canvas) {
+      $.ajax({
+        type: "GET",
+        url: "/get-vols",
+      })
+           .done(data => {
+           // clear canvas only when new data is received to avoid flickering
+           d3.selectAll("svg > *").remove();
+           // parse data when done
+           var mydata = JSON.parse(data);
+           //console.log(mydata);
+           drawTreeMap(mydata, canvas);
+      });
+      }
+
+      setInterval(function() {
+        main(canvas);
+      }, 1000 * 0.34);
+
+    </script>
+    <br>
+    <h3> What is this? </h3>
+    <p>
+      Cryptobattles is a simple hierarchical data visualization of live volumes of certain cryptocurrencies pairs.
+      The data is provided by the public GDAX API (coinbase), and displayed using D3.js.
+    </p>
+    <h3> Why the name? </h3>
+    <p>
+      Ideally, the cryptocurrencies should "fight" for the available space, which is fixed.
+      Unfortunately, I found that the volumes provided by the GDAX API don't update as quickly
+      as I thought. Hence, I added a random value to each pair to demonstrate the expected behavior.
+    </p>
+    <h3> When was this made? </h3>
+    <p>
+      This project was made during MHacks X. You can find me on Github at <a href="https://github.com/aerocat"> @aerocat </a>.
+    </p>
+</body>
+</html>
